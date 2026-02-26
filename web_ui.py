@@ -440,7 +440,7 @@ def _collect_pool_proxies(raw: Dict[str, Any]) -> Dict[str, Any]:
 @app.get("/")
 @app.get("/multi")
 def page_multi():
-    return render_template("multi.html", title="Pixiv Follow URL Indexer", page_name="multi")
+    return render_template("multi.html", title="Pixiv 关注作品索引器", page_name="multi")
 
 
 @app.get("/api/multi/config")
@@ -786,7 +786,8 @@ def api_multi_status():
     raw = _load_multi_config_raw()
     status_path = os.path.join(_runtime_dir(raw), "status.json")
     if not os.path.isfile(status_path):
-        return jsonify({"ok": False, "message": "status.json not found, start runner first"}), 404
+        # Runner not started yet (no status.json). Return empty status with 200 to avoid noisy 404 logs.
+        return jsonify({"ok": True, "status": {}, "message": "runner not started"})
     try:
         data = _read_json(status_path)
     except Exception as ex:  # noqa: BLE001

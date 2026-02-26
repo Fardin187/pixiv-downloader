@@ -2,79 +2,79 @@
 {% block content %}
   <div class="grid">
     <section class="card">
-      <h1 class="h1">Runner Control</h1>
-      <p class="muted">Choose <b>Worker Mode</b> below: index URLs, or download image files.</p>
+      <h1 class="h1">Runner 控制</h1>
+      <p class="muted">在下方选择 <b>Worker 模式</b>：只索引 URL，或下载图片文件。</p>
       <div class="row">
-        <button class="btn btn--primary" id="btn-runner-start">Start Runner</button>
-        <button class="btn" id="btn-runner-stop" disabled>Stop Runner</button>
-        <button class="btn" id="btn-runner-refresh">Apply Config Now</button>
-        <span class="pill" id="runner-state">idle</span>
+        <button class="btn btn--primary" id="btn-runner-start">启动 Runner</button>
+        <button class="btn" id="btn-runner-stop" disabled>停止 Runner</button>
+        <button class="btn" id="btn-runner-refresh">立即应用配置</button>
+        <span class="pill" id="runner-state">空闲</span>
       </div>
       <details class="details" style="margin-top: 10px;">
-        <summary>Runner Logs</summary>
-        <pre class="log" id="runner-log">(empty)</pre>
+        <summary>Runner 日志</summary>
+        <pre class="log" id="runner-log">(空)</pre>
       </details>
     </section>
 
     <section class="card">
-      <h2 class="h2">Runtime Status</h2>
+      <h2 class="h2">运行状态</h2>
       <div class="row" style="flex-wrap: wrap;">
-        <span class="pill" id="status-updated">status: -</span>
-        <span class="pill" id="status-follow">follow: -</span>
-        <span class="pill" id="status-work">work: -</span>
-        <span class="pill" id="status-db">db: -</span>
+        <span class="pill" id="status-updated">状态: -</span>
+        <span class="pill" id="status-follow">关注: -</span>
+        <span class="pill" id="status-work">任务: -</span>
+        <span class="pill" id="status-db">数据库: -</span>
       </div>
       <div class="row" style="margin-top: 10px; flex-wrap: wrap;">
-        <span class="pill" id="db-path">db_path: -</span>
+        <span class="pill" id="db-path">DB 路径: -</span>
       </div>
       <div class="row" style="margin-top: 10px;">
-        <a class="btn" id="btn-export-regular" href="/api/multi/export?kind=regular" target="_blank" rel="noreferrer">Export regular URLs</a>
-        <a class="btn" id="btn-export-original" href="/api/multi/export?kind=original" target="_blank" rel="noreferrer">Export original URLs</a>
+        <a class="btn" id="btn-export-regular" href="/api/multi/export?kind=regular" target="_blank" rel="noreferrer">导出 regular 链接</a>
+        <a class="btn" id="btn-export-original" href="/api/multi/export?kind=original" target="_blank" rel="noreferrer">导出 original 链接</a>
       </div>
     </section>
 
     <section class="card">
-      <h2 class="h2">Worker Mode</h2>
+      <h2 class="h2">Worker 模式</h2>
       <form id="worker-form" class="form">
         <div class="row">
           <label class="label">
-            <span>Mode</span>
+            <span>模式</span>
             <select class="input" id="worker-mode">
-              <option value="index_urls">index_urls (export URLs only)</option>
-              <option value="download_images">download_images (download files)</option>
+              <option value="index_urls">index_urls（仅索引/导出 URL）</option>
+              <option value="download_images">download_images（下载文件）</option>
             </select>
           </label>
           <label class="label">
-            <span>Download kind</span>
+            <span>下载类型</span>
             <select class="input" id="worker-download-kind">
               <option value="original">original</option>
               <option value="regular">regular</option>
             </select>
           </label>
           <label class="label">
-            <span>Download threads</span>
+            <span>下载线程</span>
             <input class="input" id="worker-download-threads" type="number" min="1" max="32" />
           </label>
         </div>
         <div class="row">
-          <button class="btn btn--primary" type="submit">Save Worker Config</button>
+          <button class="btn btn--primary" type="submit">保存 Worker 配置</button>
           <span class="pill" id="worker-status">-</span>
         </div>
-        <p class="muted">Download uses per-account proxy binding; files saved under <code>runtime_dir/downloads/</code>.</p>
+        <p class="muted">下载将按账号绑定代理；文件保存到 <code>runtime_dir/downloads/</code>。</p>
       </form>
     </section>
 
     <section class="card">
-      <h2 class="h2">Accounts</h2>
-      <p class="muted">Each account only needs a refresh token.</p>
+      <h2 class="h2">账号</h2>
+      <p class="muted">每个账号只需要 refresh_token。</p>
 
       <div class="row">
         <label class="label">
-          <span>Account ID</span>
+          <span>账号 ID</span>
           <input class="input" id="acc-id" placeholder="acc1" />
         </label>
         <label class="label">
-          <span>downloadDelay (seconds)</span>
+          <span>downloadDelay（秒）</span>
           <input class="input" id="acc-delay" type="number" min="0" max="120" placeholder="8" />
         </label>
       </div>
@@ -82,28 +82,28 @@
       <div class="row">
         <label class="label">
           <span>refresh_token</span>
-          <input class="input" id="acc-refresh-token" type="password" placeholder="Leave empty to keep unchanged" />
+          <input class="input" id="acc-refresh-token" type="password" placeholder="留空表示不修改" />
         </label>
       </div>
 
       <div class="row">
         <label class="label label--inline">
           <input type="checkbox" id="acc-enabled" checked />
-          <span>Enable Worker</span>
+          <span>启用 Worker</span>
         </label>
         <label class="label label--inline">
           <input type="checkbox" id="acc-follow-source" checked />
-          <span>Use for follow fetching</span>
+          <span>用于拉取关注列表</span>
         </label>
         <label class="label label--inline">
           <input type="checkbox" id="acc-clear-refresh-token" />
-          <span>Clear refresh token</span>
+          <span>清空 refresh_token</span>
         </label>
       </div>
 
       <div class="row">
-        <button class="btn btn--primary" id="btn-acc-save">Save Account</button>
-        <button class="btn" id="btn-acc-delete">Delete Account</button>
+        <button class="btn btn--primary" id="btn-acc-save">保存账号</button>
+        <button class="btn" id="btn-acc-delete">删除账号</button>
         <span class="pill" id="acc-status">-</span>
       </div>
 
@@ -114,23 +114,23 @@
               <th>ID</th>
               <th>Token</th>
               <th>Delay</th>
-              <th>Enabled</th>
-              <th>FollowSource</th>
+              <th>启用</th>
+              <th>拉关注</th>
             </tr>
           </thead>
           <tbody id="accounts-body">
-            <tr><td colspan="5" class="muted">Loading...</td></tr>
+            <tr><td colspan="5" class="muted">加载中...</td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
     <section class="card">
-      <h2 class="h2">Proxy Pool</h2>
+      <h2 class="h2">代理池</h2>
       <form id="proxy-form" class="form">
         <div class="row">
           <label class="label">
-            <span>Source</span>
+            <span>来源</span>
             <select class="input" id="proxy-source">
               <option value="easy_proxies">easy_proxies</option>
               <option value="static">static</option>
@@ -138,11 +138,11 @@
             </select>
           </label>
           <label class="label">
-            <span>Refresh interval (seconds)</span>
+            <span>刷新间隔（秒）</span>
             <input class="input" id="proxy-refresh" type="number" min="30" />
           </label>
           <label class="label">
-            <span>Max accounts per proxy</span>
+            <span>单代理最大账号数</span>
             <input class="input" id="proxy-max-per" type="number" min="1" />
           </label>
         </div>
@@ -150,10 +150,10 @@
         <div class="row">
           <label class="label label--inline" style="align-self: end;">
             <input type="checkbox" id="proxy-strict" />
-            <span>Strict capacity</span>
+            <span>严格容量限制</span>
           </label>
           <label class="label">
-            <span>proxies_file (optional)</span>
+            <span>proxies_file（可选）</span>
             <input class="input" id="proxy-file" placeholder="proxies.txt" />
           </label>
         </div>
@@ -164,18 +164,18 @@
             <input class="input" id="easy-base-url" placeholder="http://127.0.0.1:9090" />
           </label>
           <label class="label">
-            <span>easy_proxies password</span>
-            <input class="input" id="easy-password" type="password" placeholder="Leave empty to keep unchanged" />
+            <span>easy_proxies 密码</span>
+            <input class="input" id="easy-password" type="password" placeholder="留空表示不修改" />
           </label>
         </div>
 
         <div class="row">
           <label class="label">
-            <span>easy_proxies host_override (optional)</span>
-            <input class="input" id="easy-host-override" placeholder="e.g. 1.2.3.4" />
+            <span>easy_proxies host_override（可选）</span>
+            <input class="input" id="easy-host-override" placeholder="例如 1.2.3.4" />
           </label>
           <label class="label">
-            <span>easy_proxies timeout (seconds)</span>
+            <span>easy_proxies 超时（秒）</span>
             <input class="input" id="easy-timeout" type="number" min="1" max="60" />
           </label>
           <label class="label label--inline" style="align-self: end;">
@@ -186,45 +186,45 @@
 
         <div class="row">
           <label class="label">
-            <span>Manual proxy list (one per line)</span>
+            <span>手动代理列表（每行一个）</span>
             <textarea class="input" id="proxy-manual" rows="5" placeholder="http://user:pass@host:port&#10;socks5://host:port"></textarea>
           </label>
         </div>
 
         <div class="row">
           <label class="label">
-            <span>Probe target URL</span>
+            <span>探测目标 URL</span>
             <input class="input" id="proxy-test-url" placeholder="https://www.pixiv.net/robots.txt" />
           </label>
           <label class="label">
-            <span>Timeout (seconds)</span>
+            <span>超时（秒）</span>
             <input class="input" id="proxy-timeout" type="number" min="1" max="60" />
           </label>
           <label class="label">
-            <span>Concurrency</span>
+            <span>并发数</span>
             <input class="input" id="proxy-concurrency" type="number" min="1" max="200" />
           </label>
           <label class="label">
-            <span>Attempts</span>
+            <span>重试次数</span>
             <input class="input" id="proxy-attempts" type="number" min="1" max="10" />
           </label>
           <label class="label">
-            <span>Top N</span>
+            <span>取前 N</span>
             <input class="input" id="proxy-topn" type="number" min="1" max="500" />
           </label>
         </div>
 
         <div class="row">
-          <button class="btn btn--primary" type="submit">Save Proxy Config</button>
-          <button class="btn" type="button" id="btn-proxy-test">Probe Proxies</button>
+          <button class="btn btn--primary" type="submit">保存代理配置</button>
+          <button class="btn" type="button" id="btn-proxy-test">探测代理</button>
           <span class="pill" id="proxy-status">-</span>
           <span class="pill" id="proxy-test-status">-</span>
         </div>
       </form>
 
       <details class="details" style="margin-top: 10px;">
-        <summary>Top Proxies</summary>
-        <pre class="log" id="proxy-top">(empty)</pre>
+        <summary>代理排行</summary>
+        <pre class="log" id="proxy-top">(空)</pre>
       </details>
     </section>
   </div>

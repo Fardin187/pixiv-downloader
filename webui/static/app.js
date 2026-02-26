@@ -4,7 +4,7 @@ async function parseResponseAsJson(response) {
   try {
     return JSON.parse(text);
   } catch {
-    return { ok: false, message: `Invalid JSON (${response.status})` };
+    return { ok: false, message: `JSON 解析失败（HTTP ${response.status}）` };
   }
 }
 
@@ -84,7 +84,7 @@ function renderAccounts(accounts) {
   rows.sort((a, b) => String(a.id || "").localeCompare(String(b.id || "")));
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="5" class="muted">No accounts</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="muted">暂无账号</td></tr>`;
     return;
   }
 
@@ -93,7 +93,7 @@ function renderAccounts(accounts) {
       (item) => `
       <tr data-account-id="${String(item.id || "")}">
         <td>${String(item.id || "")}</td>
-        <td>${item.hasRefreshToken ? "configured" : "missing"}</td>
+        <td>${item.hasRefreshToken ? "已配置" : "缺失"}</td>
         <td>${item.downloadDelay ?? "-"}</td>
         <td>${item.enabled ? "Y" : "N"}</td>
         <td>${item.follow_source ? "Y" : "N"}</td>
@@ -144,6 +144,19 @@ function fillConfig(config) {
   setValue("proxy-concurrency", test.concurrency ?? 20);
   setValue("proxy-attempts", test.attempts ?? 2);
   setValue("proxy-topn", test.top_n ?? 20);
+}
+
+function runnerStatusToText(status) {
+  const raw = status == null ? "" : String(status);
+  const s = raw.trim().toLowerCase();
+  if (!s) return "-";
+  if (s === "idle") return "空闲";
+  if (s === "pending") return "启动中";
+  if (s === "running") return "运行中";
+  if (s === "stopped") return "已停止";
+  if (s === "success") return "已结束";
+  if (s.startsWith("failed")) return `失败（${raw}）`;
+  return raw;
 }
 
 function collectProxyPayload() {
@@ -208,7 +221,7 @@ function collectWorkerPayload() {
 async function refreshRunnerState() {
   const resp = await apiGet("/api/multi/runner");
   const running = Boolean(resp.running);
-  setText("runner-state", resp.status || (running ? "running" : "idle"));
+  setText("runner-state", runnerStatusToText(resp.status || (running ? "running" : "idle")));
 
   const startButton = document.getElementById("btn-runner-start");
   const stopButton = document.getElementById("btn-runner-stop");
@@ -216,44 +229,45 @@ async function refreshRunnerState() {
   if (stopButton) stopButton.disabled = !running;
 
   const logs = Array.isArray(resp.logs) ? resp.logs : [];
-  setText("runner-log", logs.length ? logs.join("\n") : "(empty)");
+  setText("runner-log", logs.length ? logs.join("\n") : "(空)");
 }
 
 async function refreshRuntimeStatus() {
   const statusResp = await apiGet("/api/multi/status");
-  if (!statusResp.ok) {
-    setText("status-updated", "status: -");
-    setText("status-follow", "follow: -");
-    setText("status-work", "work: -");
+  const status = statusResp.status || {};
+  const noStatus =
+    !statusResp.ok || !status || (typeof status === "object" && !Array.isArray(status) && Object.keys(status).length === 0);
+  if (noStatus) {
+    setText("status-updated", "状态: Runner 未启动");
+    setText("status-follow", "关注: -");
+    setText("status-work", "任务: -");
     return;
   }
-
-  const status = statusResp.status || {};
   const follow = status.follow || {};
   const work = status.work || {};
 
-  setText("status-updated", `status: ${toTimestampText(status.updated_at)}`);
+  setText("status-updated", `状态: ${toTimestampText(status.updated_at)}`);
   setText(
     "status-follow",
-    `follow: unique=${follow.unique_artists ?? 0}, last=${toTimestampText(follow.last_refresh)}`
+    `关注: 画师=${follow.unique_artists ?? 0}, 上次=${toTimestampText(follow.last_refresh)}`
   );
   setText(
     "status-work",
-    `work: assigned=${work.assigned_artists_total ?? 0}, processed=${work.processed_artists_total ?? 0}`
+    `任务: 分配=${work.assigned_artists_total ?? 0}, 已处理=${work.processed_artists_total ?? 0}`
   );
 }
 
 async function refreshDbStats() {
   const dbResp = await apiGet("/api/multi/db/stats");
   if (!dbResp.ok) {
-    setText("status-db", "db: -");
-    setText("db-path", "db_path: -");
+    setText("status-db", "数据库: -");
+    setText("db-path", "DB 路径: -");
     return;
   }
 
   const stats = dbResp.stats || {};
-  setText("status-db", `db: members=${stats.member_count ?? 0}, images=${stats.image_count ?? 0}, urls=${stats.url_count ?? 0}`);
-  setText("db-path", `db_path: ${dbResp.db_path || "-"}`);
+  setText("status-db", `数据库: 画师=${stats.member_count ?? 0}, 作品=${stats.image_count ?? 0}, URL=${stats.url_count ?? 0}`);
+  setText("db-path", `DB 路径: ${dbResp.db_path || "-"}`);
 }
 
 async function refreshAll() {
@@ -268,25 +282,25 @@ async function refreshAll() {
 
 async function startRunner() {
   const resp = await apiPost("/api/multi/runner/start", {});
-  setText("runner-state", resp.ok ? "starting" : resp.message || "start failed");
+  setText("runner-state", resp.ok ? "启动中" : resp.message || "启动失败");
   await refreshRunnerState();
 }
 
 async function stopRunner() {
   const resp = await apiPost("/api/multi/runner/stop", {});
-  setText("runner-state", resp.ok ? "stopped" : resp.message || "stop failed");
+  setText("runner-state", resp.ok ? "已停止" : resp.message || "停止失败");
   await refreshRunnerState();
 }
 
 async function forceRefresh() {
   const resp = await apiPost("/api/multi/refresh", {});
-  setText("runner-state", resp.ok ? "refresh signal sent" : resp.message || "refresh failed");
+  setText("runner-state", resp.ok ? "已发送刷新信号" : resp.message || "刷新失败");
 }
 
 async function saveAccount() {
   const accountId = (document.getElementById("acc-id")?.value || "").trim();
   if (!accountId) {
-    setText("acc-status", "Account ID is required");
+    setText("acc-status", "需要填写账号 ID");
     return;
   }
 
@@ -308,7 +322,7 @@ async function saveAccount() {
   }
 
   const resp = await apiPost("/api/multi/account", payload);
-  setText("acc-status", resp.ok ? "Saved" : resp.message || "Save failed");
+  setText("acc-status", resp.ok ? "已保存" : resp.message || "保存失败");
 
   setValue("acc-refresh-token", "");
   setChecked("acc-clear-refresh-token", false);
@@ -318,12 +332,12 @@ async function saveAccount() {
 async function deleteAccount() {
   const accountId = (document.getElementById("acc-id")?.value || "").trim();
   if (!accountId) {
-    setText("acc-status", "Account ID is required");
+    setText("acc-status", "需要填写账号 ID");
     return;
   }
 
   const resp = await apiDelete(`/api/multi/account/${encodeURIComponent(accountId)}`);
-  setText("acc-status", resp.ok ? "Deleted" : resp.message || "Delete failed");
+  setText("acc-status", resp.ok ? "已删除" : resp.message || "删除失败");
   await refreshAll();
 }
 
@@ -331,7 +345,7 @@ async function saveProxyConfig(event) {
   event.preventDefault();
   const payload = collectProxyPayload();
   const resp = await apiPost("/api/multi/config", payload);
-  setText("proxy-status", resp.ok ? "Saved" : resp.message || "Save failed");
+  setText("proxy-status", resp.ok ? "已保存" : resp.message || "保存失败");
   setValue("easy-password", "");
   await refreshAll();
 }
@@ -340,7 +354,7 @@ async function saveWorkerConfig(event) {
   event.preventDefault();
   const payload = collectWorkerPayload();
   const resp = await apiPost("/api/multi/config", payload);
-  setText("worker-status", resp.ok ? "Saved" : resp.message || "Save failed");
+  setText("worker-status", resp.ok ? "已保存" : resp.message || "保存失败");
   await refreshAll();
 }
 
@@ -355,15 +369,15 @@ async function testProxyPool() {
 
   const resp = await apiPost("/api/multi/proxy/test", payload);
   if (!resp.ok) {
-    setText("proxy-test-status", resp.message || "Probe failed");
-    setText("proxy-top", "(no result)");
+    setText("proxy-test-status", resp.message || "探测失败");
+    setText("proxy-top", "(无结果)");
     return;
   }
 
-  setText("proxy-test-status", `ok: ${resp.normalized_count ?? 0} proxies`);
+  setText("proxy-test-status", `可用代理：${resp.normalized_count ?? 0}`);
   const rows = Array.isArray(resp.top) ? resp.top : [];
   if (!rows.length) {
-    setText("proxy-top", "(no usable proxy)");
+    setText("proxy-top", "(无可用代理)");
     return;
   }
 
@@ -406,6 +420,6 @@ async function init() {
 
 window.addEventListener("DOMContentLoaded", () => {
   init().catch(() => {
-    setText("runner-state", "init failed");
+    setText("runner-state", "初始化失败");
   });
 });
